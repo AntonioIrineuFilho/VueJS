@@ -9,21 +9,13 @@
 ## Criar e configurar
 
 ```
->> Baixar Node + NPM
+npm install -g @vue/cli
 
->> cd <diretório onde a pasta do projeto irá ficar>
+vue create test-project 
 
->> npm create vue@latest
+cd test-project 
 
->> Preencher as requisições do projeto(nome, dependências), a principal é o Router
-
->> cd <projeto criado>
-
->> npm install
-
->> npm run format
-
->> npm run dev
+npm run serve
 ```
 
 - É interessante selecionar o **prettier** e o **eslint** ao configurar o projeto, além de ter as extensões no VSCode
@@ -36,4 +28,4 @@
 
 - Pasta **views** -> Todas as "outras páginas", atuam como componentes que podem ser chamadas por meio de um router ou router-link(roteamento dinâmico, sem recarregar a página)
 
-- Pasta **routers** -> Onde ficam os arquivos de definição das rotas de cada view, podendo ser arquivo único para definição das rotas(tal qual urls.py) ou arquivos que classificam rotas da mesma natureza(para projetos grandes)
+- Pasta **routers** -> Onde ficam os arquivos de definição das rotas de cada view
