@@ -253,6 +253,148 @@ export default {
 
 ## Requisições para API
 
+As requisições podem ser feitas com fetch tradicional ou axios.
 
+O axios já seta o Content-Type e faz o JSON.Stringify automaticamente(```npm install axios```).
 
-## Proteção das rotas
+O hook mounted coonfigura para chamar o método de requisição assim que o componente for aberto (no caso do GET, por exemplo).
+
+```
+<script>
+export default {
+    name: "TestComponent",
+    data() {
+        return {
+            users: [],
+            user: {
+                username: "",
+                email: "",
+                password: ""
+            }
+        }
+    },
+    mounted() {
+        this.getUsers()
+    },
+    methods: {
+        async getUsers() {
+            try {
+                // FETCH NORMAL - GET
+                const response = await fetch("http://localhost:3000/api/users")
+                this.users = await response.json()
+                // AXIOS
+                const response = await axios.get("http://localhost:3000/api/users")
+                this.users = response.data
+            } catch (error) {
+                console.error(error)
+            }
+        },
+
+        async postUser() {
+            try {
+               // FETCH NORMAL - POST
+                const response = await fetch("http://localhost:3000/api/users", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(this.user)
+                })
+                const response = await response.json()
+                // AXIOS
+                const response = await axios.post("http://localhost:3000/api/users", this.user)
+            } catch (error) {
+                console.error(error)
+            }
+        }
+    }
+}
+</script>
+```
+
+## Autenticação
+
+Ao receber o token na resposta da autenticação, ele deve ser adicionado ao Local Storage, junto dos dados do usuário(para que sejam utilizados).
+
+Para fazer as requisições, o token deve ser adicionado ao header de authorization.
+
+Pelo axios, o ideal é criar um objeto api com a URL base e o token vindo do Local Storage, para simplificar as requisições.
+
+Ao realizar logout, o Local Storage deve ser limpo.
+
+```
+// api.js
+
+import axios from "axios"
+
+const api = axios.create({
+    baseURL: "http://localhost:3000/api"
+})
+
+api.interceptors.request.use(config => {
+    const token = localStorage.getItem("token")
+    if (token) {
+        config.headers["Authorization"] = token
+    }
+    return config
+})
+
+export default api
+```
+
+```
+<script>
+import api from "../services/api.js"
+
+export default {
+    name: "TestComponent",
+    data() {
+        return {
+            user: {
+                username: "",
+                password: ""
+            }
+        }
+    },
+    methods: {
+        async login() {
+            try {
+                const response = api.post("/login", this.user)
+                localStorage.setItem("token", response.headers["authorization"])
+                localStorage.setItem("user", JSON.stringify(response.data))
+            } catch (error) {
+                console.error(error)
+            }
+        }
+
+        logout() {
+            localStorage.removeItem("token")
+            localStorage.removeItem("user")
+            this.$router.push("/login") # redireciona automaticamente para a rota de login
+        }
+    }
+}
+</script>
+```
+
+### Proteção das rotas
+
+No Vue Router, as rotas protegidas devem possuir ```meta requerAuth```, seguido de um navigation guard que roda antes de toda mudança de rota verificando se a rota é protegida e se o token está presente para permitir seguir:
+
+```
+// router/index.js
+
+const routes = [
+    { path: "/home", component: HomeView, meta: {requerAuth: true} },
+]
+
+router.beforeEach((to, from, next) => {
+    const token = localStorage.getItem("token")
+    if (to.meta.requerAuth && !token) {
+        next("/login")
+    } else {
+        next()
+    }
+})
+
+```
