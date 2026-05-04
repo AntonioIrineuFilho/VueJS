@@ -1,18 +1,25 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png" />
-    <HelloWorld msg="Teste" />
+  <div>
+    <h1>Home Page</h1>
+    <h2>Seja bem-vindo, {{ user.username }}</h2>
+    <button @click="clearStorage">Logout</button>
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from "@/components/HelloWorld.vue";
-
 export default {
   name: "HomeView",
-  components: {
-    HelloWorld,
+  data() {
+    return {
+      user: JSON.parse(localStorage.getItem("user")),
+    };
+  },
+  methods: {
+    clearStorage() {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      this.$router.push("/login");
+    },
   },
 };
 </script>

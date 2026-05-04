@@ -6,6 +6,8 @@ O template vai lidar com a renderização declarativa, diretivas, router-links, 
 
 O script é organizado dentro de um export default, onde se define nome do componente, props, componentes utilizados, lifecycles hooks(como data()), métodos e etc.
 
+O componente ```router-view``` do App.vue funciona como um renderizador de componente, ou seja, tudo que estiver no App.vue sempre será renderizado independentemente da rota acessada (útil para itens fixos como navbar, footer, etc), e o componente atrelado a rota será renderizado na posição do router-view.
+
 ## Template
 
 ### Renderização declarativa
@@ -136,7 +138,6 @@ export default {
 
 Permitem que, ao clicar em algum elemento, seja mudada a rota atual, renderizando uma view conforme a configuração no arquivo de rotas.
 
-Funciona junto de router-view:
 
 ```
 <router-link to = "/">Home</router-link>
@@ -176,6 +177,52 @@ export default {
         <TestComponent username = "antonioirfilho" email = "ant@gmail.com" password = "123" />
     </div>
 </template>
+</script>
+```
+
+### emit
+
+O emit funciona como um emissor de dados do filho para o pai (fluxo reverso às props) com base no disparo de evento:
+
+```
+<template>
+    <div>
+        <button @click="sendToFather">Clique aqui</button>
+    </div>
+</template>
+
+<script>
+export default {
+    name: "TestComponent",
+    data() {
+        return {
+            value: ""
+        }
+    },
+    methods: {
+        sendToFather {
+            this.$emit("event-name", this.value)
+        }
+    },
+</script>
+```
+
+Para receber o valor, o pai deve escutar o evento:
+
+```
+<template>
+    <div>
+        <TestComponent @event-name="catchEvent" />
+    </div>
+</template>
+
+<script>
+export default {
+    methods: {
+        catchEvent(eventValue) {
+            console.log(eventValue)
+        },
+    }
 </script>
 ```
 
